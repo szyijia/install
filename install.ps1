@@ -1,13 +1,13 @@
 $ErrorActionPreference = "Stop"
 
-$installDirectory = [IO.Path]::Combine($home, ".shorebird")
+$installDirectory = [IO.Path]::Combine($home, ".patchwing")
 
 function Test-GitInstalled {
     if (Get-Command git -ErrorAction SilentlyContinue) {
         Write-Debug "Git is installed."
     }
     else {
-        Write-Output "No git installation detected. Git is required to use shorebird."
+        Write-Output "No git installation detected. Git is required to use patchwing."
         exit 1
     }
 }
@@ -66,21 +66,21 @@ $force = $args -contains "--force"
 
 if (Test-Path $installDirectory) {
     if ($force) {
-        Write-Output "Existing Shorebird installation detected. Overwriting..."
+        Write-Output "Existing Patchwing installation detected. Overwriting..."
         Remove-Item -Recurse -Force $installDirectory
     }
     else {
-        Write-Output "Error: Existing Shorebird installation detected. Use --force to overwrite."
+        Write-Output "Error: Existing Patchwing installation detected. Use --force to overwrite."
         return
     }
 }
 
-Write-Output "Installing Shorebird to $installDirectory..."
+Write-Output "Installing Patchwing to $installDirectory..."
 
-& git clone https://github.com/shorebirdtech/shorebird.git -b stable $installDirectory
+& git clone https://github.com/szyijia/patchwing.git -b patchwing/main $installDirectory
 
 Push-Location $installDirectory\bin
-& .\shorebird.ps1 --version
+& .\patchwing.ps1 --version
 Pop-Location
 
 $wasPathUpdated = Update-Path
@@ -89,22 +89,22 @@ $birdEmoji = [System.Char]::ConvertFromUtf32([System.Convert]::toInt32("1F426", 
 
 Write-Output @"
 
-$birdEmoji Shorebird has been installed!
+$birdEmoji Patchwing has been installed!
 
 "@
 
 if ($wasPathUpdated) {
     Write-Output @"
-Please restart your terminal to start using Shorebird.
+Please restart your terminal to start using Patchwing.
 "@
 }
 
 Write-Output @"
-To create an account, visit: https://console.shorebird.dev
+To create an account, visit: https://console.patchwing.net
 Then login using:
 
-  shorebird login
+  patchwing login
 
 For more information, visit:
-https://docs.shorebird.dev
+https://docs.patchwing.net
 "@

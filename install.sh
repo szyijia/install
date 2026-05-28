@@ -3,12 +3,12 @@
 set -e
 
 install_dir() {
-  [ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.shorebird" || printf %s "${XDG_CONFIG_HOME}/shorebird"
+  [ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.patchwing" || printf %s "${XDG_CONFIG_HOME}/patchwing"
 }
 
-add_shorebird_to_path() {
-  # Add the Shorebird CLI to your PATH.
-  echo "Adding Shorebird to your PATH"
+add_patchwing_to_path() {
+  # Add the Patchwing CLI to your PATH.
+  echo "Adding Patchwing to your PATH"
 
   rc_files=("$HOME/.bashrc" "$HOME/.zshrc")
   for rc_file in ${rc_files[@]}; do
@@ -20,7 +20,7 @@ add_shorebird_to_path() {
   done
 
   if [[ ! $found_rc_file ]]; then
-    echo "Unable to determine shell type. Please add Shorebird to your PATH manually."
+    echo "Unable to determine shell type. Please add Patchwing to your PATH manually."
     echo "export PATH=\"$(install_dir)/bin:\$PATH\""
   fi
 }
@@ -97,46 +97,46 @@ fi
 # Check if install_dir already exists
 if [ -d "$(install_dir)" ]; then
   if [ "$FORCE" = true ]; then
-    echo "Existing Shorebird installation detected. Overwriting..."
+    echo "Existing Patchwing installation detected. Overwriting..."
     rm -rf "$(install_dir)"
   else
-    echo >&2 "Error: Existing Shorebird installation detected. Use --force to overwrite."
+    echo >&2 "Error: Existing Patchwing installation detected. Use --force to overwrite."
     exit 1
   fi
 fi
 
-# Clone the Shorebird repository into the install_dir
-echo "Cloning Shorebird into $(install_dir)"
-git clone https://github.com/shorebirdtech/shorebird.git -b stable "$(install_dir)"
+# Clone the Patchwing repository into the install_dir
+echo "Cloning Patchwing into $(install_dir)"
+git clone https://github.com/szyijia/patchwing.git -b patchwing/main "$(install_dir)"
 
-# Build Shorebird
-(cd "$(install_dir)" && ./bin/shorebird --version)
+# Build Patchwing
+(cd "$(install_dir)" && ./bin/patchwing --version)
 
 RELOAD_REQUIRED=false
-SHOREBIRD_BIN="$(install_dir)/bin"
-case :$PATH: in *:$SHOREBIRD_BIN:*) ;; # do nothing, it's there
+PATCHWING_BIN="$(install_dir)/bin"
+case :$PATH: in *:$PATCHWING_BIN:*) ;; # do nothing, it's there
 *)
   RELOAD_REQUIRED=true
-  add_shorebird_to_path >&2
+  add_patchwing_to_path >&2
   ;;
 esac
 
 echo ""
-echo "🐦 Shorebird has been installed!"
+echo "🐦 Patchwing has been installed!"
 
 if [ "$RELOAD_REQUIRED" = true ]; then
   echo "
-Close and reopen your terminal to start using Shorebird or run the following command to start using it now:
+Close and reopen your terminal to start using Patchwing or run the following command to start using it now:
 
   export PATH=\"$(install_dir)/bin:\$PATH\""
 fi
 
 echo "
-To create an account, visit: https://console.shorebird.dev
+To create an account, visit: https://console.patchwing.net
 Then login using:
 
-  shorebird login
+  patchwing login
 
 For more information, visit:
-https://docs.shorebird.dev
+https://docs.patchwing.net
 "

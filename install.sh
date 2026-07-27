@@ -107,7 +107,7 @@ fi
 
 # Clone the Patchwing repository into the install_dir
 echo "Cloning Patchwing into $(install_dir)"
-git clone https://github.com/szyijia/patchwing.git -b patchwing/main "$(install_dir)"
+git clone https://github.com/szyijia/patchwing.git -b patchwing/phase1-zero-shorebird "$(install_dir)"
 
 # Build Patchwing
 (cd "$(install_dir)" && ./bin/patchwing --version)

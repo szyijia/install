@@ -80,7 +80,7 @@ Write-Output "Installing Patchwing to $installDirectory..."
 & git clone https://github.com/szyijia/patchwing.git -b patchwing/phase1-zero-shorebird $installDirectory
 
 Push-Location $installDirectory\bin
-& .\patchwing.ps1 --version
+& .\pw.bat --version
 Pop-Location
 
 $wasPathUpdated = Update-Path

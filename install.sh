@@ -135,7 +135,7 @@ echo "
 To create an account, visit: https://console.patchwing.net
 Then login using:
 
-  patchwing login
+  pw login
 
 For more information, visit:
 https://docs.patchwing.net

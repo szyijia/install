@@ -77,7 +77,7 @@ if (Test-Path $installDirectory) {
 
 Write-Output "Installing Patchwing to $installDirectory..."
 
-& git clone https://github.com/szyijia/patchwing.git -b patchwing/phase1-zero-shorebird $installDirectory
+& git clone https://github.com/szyijia/patchwing.git -b patchwing/main $installDirectory
 
 Push-Location $installDirectory\bin
 & .\pw.bat --version

@@ -8,6 +8,9 @@ The Windows installer uses the public Git checkout and `pw.bat` bootstrap,
 matching the upstream installation model. It requires Windows x64, Git
 2.25.1 or newer, and PowerShell 5.1 or newer. It installs for the current user
 and updates the user PATH only after bootstrap succeeds.
+Enable Git long paths during environment setup as requested by the upstream
+Windows bootstrap (`git config --system core.longpaths true` in an elevated
+terminal), then return to a normal terminal for installation and development.
 
 An existing installation directory is preserved and reported as an error;
 the installer does not delete existing SDKs or credentials. Failed clone or

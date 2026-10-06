@@ -1,4 +1,9 @@
+#Requires -Version 5.1
 $ErrorActionPreference = "Stop"
+
+if ($env:OS -ne 'Windows_NT' -or $env:PROCESSOR_ARCHITECTURE -ne 'AMD64') {
+    throw 'This installer requires Windows x64. Other hosts are not yet accepted.'
+}
 
 $installDirectory = [IO.Path]::Combine($home, ".patchwing")
 
@@ -38,7 +43,11 @@ function Compare-GitVersions {
 
 function Test-GitVersion {
     $minGitVersion = "2.25.1"
-    $gitVersion = (Get-Item (Get-Command git).Source).VersionInfo.ProductVersionRaw
+    $gitVersionText = & git --version
+    if ($LASTEXITCODE -ne 0 -or $gitVersionText -notmatch 'git version (\d+\.\d+\.\d+)') {
+        throw 'Unable to determine Git version.'
+    }
+    $gitVersion = $Matches[1]
     $comparisonResult = Compare-GitVersions -version1 $gitVersion -version2 $minGitVersion
     if ($comparisonResult -eq -1) {
         Write-Output "Installed git version $gitVersion is older than required git version $minGitVersion."
@@ -48,12 +57,13 @@ function Test-GitVersion {
 
 function Update-Path {
     $path = [Environment]::GetEnvironmentVariable("PATH", "User")
-    if ($path.contains($installDirectory)) {
+    $binPath = [IO.Path]::Combine($installDirectory, "bin")
+    $entries = @($path -split [IO.Path]::PathSeparator | Where-Object { $_ })
+    if ($entries | Where-Object { $_.TrimEnd('\') -ieq $binPath.TrimEnd('\') }) {
         return $false
     }
-    $binPath = [IO.Path]::Combine($installDirectory, "bin")
     [Environment]::SetEnvironmentVariable(
-        "Path", $path + [IO.Path]::PathSeparator + $binPath, "User"
+        "Path", (($entries + $binPath) -join [IO.Path]::PathSeparator), "User"
     )
 
     return $true
@@ -62,34 +72,32 @@ function Update-Path {
 Test-GitInstalled
 Test-GitVersion
 
-$force = $args -contains "--force"
-
 if (Test-Path $installDirectory) {
-    if ($force) {
-        Write-Output "Existing Patchwing installation detected. Overwriting..."
-        Remove-Item -Recurse -Force $installDirectory
-    }
-    else {
-        Write-Output "Error: Existing Patchwing installation detected. Use --force to overwrite."
-        return
-    }
+    throw "Existing directory detected: $installDirectory. It has been preserved; use a fresh Windows user for first-install acceptance."
 }
 
 Write-Output "Installing Patchwing to $installDirectory..."
 
 & git clone https://github.com/szyijia/patchwing.git -b patchwing/main $installDirectory
+if ($LASTEXITCODE -ne 0) {
+    throw "Git clone failed with exit $LASTEXITCODE. Partial files have been preserved."
+}
 
 Push-Location $installDirectory\bin
-& .\pw.bat --version
-Pop-Location
+try {
+    & .\pw.bat --version
+    if ($LASTEXITCODE -ne 0) {
+        throw "Patchwing bootstrap failed with exit $LASTEXITCODE. PATH has not been changed."
+    }
+}
+finally {
+    Pop-Location
+}
 
 $wasPathUpdated = Update-Path
-# 1F426 is the code for 🐦. See https://unicode.org/emoji/charts/full-emoji-list.html#1f426.
-$birdEmoji = [System.Char]::ConvertFromUtf32([System.Convert]::toInt32("1F426", 16))
-
 Write-Output @"
 
-$birdEmoji Patchwing has been installed!
+Patchwing has been installed!
 
 "@
 
@@ -100,7 +108,7 @@ Please restart your terminal to start using Patchwing.
 }
 
 Write-Output @"
-To create an account, visit: https://console.patchwing.net
+To create an account, visit: https://console.patchwing.net/register
 Then login using:
 
   pw login
